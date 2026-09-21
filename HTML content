@@ -1,315 +1,1288 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>♡ Pocket Music Widget</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
-<style>
-*{box-sizing:border-box}
-:root{
-  --accent:#ff73aa;--accent2:#ff9bc3;--soft:#ffe3ef;
-  --bg:#f7f4f7;--device:#efedf0;--screen:#fffafd;
-  --text:#302a31;--muted:#9e959e;--line:#e9e1e8
-}
-body.dark{--accent:#ff80b5;--accent2:#c783ff;--soft:#342533;--bg:#171519;--device:#29262b;--screen:#211e23;--text:#f5edf3;--muted:#aaa1aa;--line:#ffffff12}
-body.lavender{--accent:#9a82ff;--accent2:#c6baff;--soft:#eeeaff}
-body.mint{--accent:#55cbb0;--accent2:#9ae9d5;--soft:#ddf8f1}
-body.y2k{--accent:#758cff;--accent2:#d6ddff;--soft:#e7ebff}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>♡ Pocket Music Widget</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box
+        }
 
-html,body{margin:0;padding:0;background:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);display:flex;justify-content:center;align-items:flex-start}
-.widget{width:min(350px,100vw);padding:10px}
-.device{width:100%;padding:14px;border-radius:30px;background:linear-gradient(145deg,#fff,var(--device));border:1px solid #fff9;box-shadow:0 18px 45px #4d3d5525}
-body.dark .device{background:linear-gradient(145deg,#302d32,#211f23);border-color:#ffffff12}
-.speaker{width:45px;height:4px;border-radius:10px;background:#d0cbd1;margin:1px auto 10px}
-.screen{height:360px;border-radius:22px;background:var(--screen);border:1px solid var(--line);overflow:hidden;box-shadow:inset 0 2px 8px #eee8ed55;display:flex;flex-direction:column}
-.statusbar{height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 13px;font-size:9px;font-weight:800;color:var(--muted);flex:none}
-.statusbar span:first-child{color:var(--text)}
-.view{display:none;flex:1;min-height:0}.view.active{display:flex}
-.now{flex-direction:column;padding:0 13px 12px}
-.album{position:relative;flex:1;min-height:0;border-radius:17px;overflow:hidden;background:linear-gradient(135deg,var(--soft),#ddd9ff);box-shadow:0 8px 18px #503c5a18}
-.album img{width:100%;height:100%;object-fit:cover;display:none}
-.placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;color:var(--muted)}
-.note{font-size:58px}.placeholder small{font-size:10px}
-.drop{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#ffffffc9;backdrop-filter:blur(8px);color:var(--accent);font-size:13px;font-weight:800}
-.album.dragging .drop{display:flex}
-.song{padding:10px 2px 7px}
-.song-name{font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.song-artist{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
-.progress{width:100%;height:4px;appearance:none;background:#e8e2e7;border-radius:20px;cursor:pointer}
-.progress::-webkit-slider-thumb{appearance:none;width:10px;height:10px;border-radius:50%;background:var(--accent)}
-.times{display:flex;justify-content:space-between;margin-top:4px;font-size:8px;color:var(--muted)}
-.now-actions{display:flex;justify-content:space-between;align-items:center;padding:7px 1px 0}
-.now-actions button{border:0;background:transparent;color:var(--muted);font-size:10px;cursor:pointer}
-.now-actions button.active{color:var(--accent);font-weight:800}
-.menu-screen{flex-direction:column;position:relative;overflow:hidden}
-.menu-title{padding:3px 13px 7px;font-size:17px;font-weight:900;flex:none}
-.menu-viewport{position:relative;flex:1;overflow:hidden;padding:0 8px}
-.menu-viewport:before,.menu-viewport:after{content:"";position:absolute;left:8px;right:8px;height:24px;z-index:4;pointer-events:none}
-.menu-viewport:before{top:0;background:linear-gradient(var(--screen),transparent)}
-.menu-viewport:after{bottom:0;background:linear-gradient(transparent,var(--screen))}
-.menu-list{position:absolute;left:8px;right:8px;top:0;padding:0;transition:transform .28s cubic-bezier(.2,.8,.2,1)}
-.menu-row{height:36px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;border-radius:9px;font-size:11px;cursor:pointer;transition:transform .28s,opacity .28s,background .18s}
-.menu-row.selected{background:var(--accent);color:white;font-weight:800;transform:scale(1.02)}
-.menu-row:not(.selected){opacity:.72}
-.menu-row .arrow{opacity:.6}
-.menu-footer{height:22px;flex:none;text-align:center;font-size:8px;color:var(--muted);padding-top:3px}
-.menu-empty{text-align:center;color:var(--muted);font-size:10px;padding:30px 12px}
-.detail{flex-direction:column;padding:0 13px 13px}
-.detail-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.back{border:0;background:var(--soft);color:var(--accent);border-radius:9px;padding:5px 8px;font-size:10px;cursor:pointer}
-.detail-head b{font-size:13px}
-.detail-list{overflow:auto;flex:1}
-.item{display:flex;align-items:center;gap:8px;padding:7px;border-radius:10px;cursor:pointer}
-.item:hover{background:var(--soft)}
-.item img{width:31px;height:31px;border-radius:7px;object-fit:cover}
-.item-info{min-width:0;flex:1}.item-title{font-size:10px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.item-sub{font-size:8px;color:var(--muted)}
-.item button{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:13px}
-.item button.liked{color:var(--accent)}
-.form{padding:10px}.form input,.form select{width:100%;padding:8px;border:1px solid var(--line);border-radius:9px;background:var(--screen);color:var(--text);margin-bottom:7px}.form button{border:0;border-radius:9px;padding:8px 12px;background:var(--accent);color:#fff;font-weight:800;cursor:pointer}
-.settings-row{display:flex;align-items:center;justify-content:space-between;padding:9px;border-bottom:1px solid var(--line);font-size:10px}.settings-row label{font-weight:800}.settings-row select{width:130px;padding:6px;border-radius:8px;border:1px solid var(--line);background:var(--screen);color:var(--text)}
-.add{display:block;text-align:center;margin:8px 0 0;padding:8px;border:1px dashed #d7cfd6;border-radius:11px;color:var(--muted);font-size:9px;cursor:pointer}.add b{color:var(--accent)}#fileInput{display:none}
-.wheel-area{display:flex;justify-content:center;padding:13px 0 2px}.wheel{position:relative;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff,#e8e5e9 62%,#d5d1d6);box-shadow:0 10px 20px #756d7730,inset 0 2px 5px white,inset 0 -5px 8px #bcb7be;touch-action:none;user-select:none}
-.wheel:after{content:"";position:absolute;inset:12px;border-radius:50%;border:1px solid #d1ccd1;pointer-events:none}
-.wheel-btn{position:absolute;border:0;background:transparent;color:#777079;font-weight:800;font-size:9px;cursor:pointer;z-index:3}.menu{top:17px;left:50%;transform:translateX(-50%)}.prev{left:17px;top:50%;transform:translateY(-50%);font-size:14px}.next{right:17px;top:50%;transform:translateY(-50%);font-size:14px}.playWheel{bottom:17px;left:50%;transform:translateX(-50%);font-size:14px}
-.center{position:absolute;width:58px;height:58px;border:0;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);background:linear-gradient(145deg,#fff,#e4e1e5);box-shadow:0 4px 10px #81798330,inset 0 1px 2px white;cursor:pointer;z-index:4;font-weight:800;color:#686169;font-size:9px}
-.center:active{transform:translate(-50%,-50%) scale(.94)}
-.hint{text-align:center;font-size:8px;color:var(--muted);padding-bottom:3px}
-.toast{position:fixed;left:50%;bottom:12px;transform:translateX(-50%) translateY(10px);background:#302a31;color:white;padding:7px 11px;border-radius:10px;font-size:9px;opacity:0;pointer-events:none;transition:.2s;z-index:100}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-@media(max-height:620px){.screen{height:310px}.wheel{width:135px;height:135px}}
-</style>
+        :root {
+            --accent: #ff73aa;
+            --accent2: #ff9bc3;
+            --soft: #ffe3ef;
+            --bg: #f7f4f7;
+            --device: #efedf0;
+            --screen: #fffafd;
+            --text: #302a31;
+            --muted: #9e959e;
+            --line: #e9e1e8
+        }
+
+        body.dark {
+            --accent: #ff80b5;
+            --accent2: #c783ff;
+            --soft: #342533;
+            --bg: #171519;
+            --device: #29262b;
+            --screen: #211e23;
+            --text: #f5edf3;
+            --muted: #aaa1aa;
+            --line: #ffffff12
+        }
+
+        body.lavender {
+            --accent: #9a82ff;
+            --accent2: #c6baff;
+            --soft: #eeeaff
+        }
+
+        body.mint {
+            --accent: #55cbb0;
+            --accent2: #9ae9d5;
+            --soft: #ddf8f1
+        }
+
+        body.y2k {
+            --accent: #758cff;
+            --accent2: #d6ddff;
+            --soft: #e7ebff
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: transparent
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start
+        }
+
+        .widget {
+            width: min(350px, 100vw);
+            padding: 10px
+        }
+
+        .device {
+            width: 100%;
+            padding: 14px;
+            border-radius: 30px;
+            background: linear-gradient(145deg, #fff, var(--device));
+            border: 1px solid #fff9;
+            box-shadow: 0 18px 45px #4d3d5525
+        }
+
+        body.dark .device {
+            background: linear-gradient(145deg, #302d32, #211f23);
+            border-color: #ffffff12
+        }
+
+        .speaker {
+            width: 45px;
+            height: 4px;
+            border-radius: 10px;
+            background: #d0cbd1;
+            margin: 1px auto 10px
+        }
+
+        .screen {
+            height: 320px;
+            border-radius: 22px;
+            background: var(--screen);
+            border: 1px solid var(--line);
+            overflow: hidden;
+            box-shadow: inset 0 2px 8px #eee8ed55;
+            display: flex;
+            flex-direction: column
+        }
+
+        .statusbar {
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 13px;
+            font-size: 9px;
+            font-weight: 800;
+            color: var(--muted);
+            flex: none
+        }
+
+        .statusbar span:first-child {
+            color: var(--text)
+        }
+
+        .view {
+            display: none;
+            flex: 1;
+            min-height: 0
+        }
+
+        .view.active {
+            display: flex
+        }
+
+        .now {
+            flex-direction: column;
+            padding: 0 13px 12px
+        }
+
+        .album {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+            border-radius: 17px;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--soft), #ddd9ff);
+            box-shadow: 0 8px 18px #503c5a18
+        }
+
+        .album img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none
+        }
+
+        .placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: var(--muted)
+        }
+
+        .note {
+            font-size: 58px
+        }
+
+        .placeholder small {
+            font-size: 10px
+        }
+
+        .drop {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: #ffffffc9;
+            backdrop-filter: blur(8px);
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 800
+        }
+
+        .album.dragging .drop {
+            display: flex
+        }
+
+        .song {
+            padding: 10px 2px 7px
+        }
+
+        .song-name {
+            font-size: 15px;
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .song-artist {
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px
+        }
+
+        .progress {
+            width: 100%;
+            height: 4px;
+            appearance: none;
+            background: #e8e2e7;
+            border-radius: 20px;
+            cursor: pointer
+        }
+
+        .progress::-webkit-slider-thumb {
+            appearance: none;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent)
+        }
+
+        .times {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+            font-size: 8px;
+            color: var(--muted)
+        }
+
+        .now-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 1px 0
+        }
+
+        .now-actions button {
+            border: 0;
+            background: transparent;
+            color: var(--muted);
+            font-size: 10px;
+            cursor: pointer
+        }
+
+        .now-actions button.active {
+            color: var(--accent);
+            font-weight: 800
+        }
+
+        .menu-screen {
+            flex-direction: column;
+            position: relative;
+            overflow: hidden
+        }
+
+        .menu-title {
+            padding: 3px 13px 7px;
+            font-size: 17px;
+            font-weight: 900;
+            flex: none
+        }
+
+        .menu-viewport {
+            position: relative;
+            flex: 1;
+            overflow: hidden;
+            padding: 0 8px
+        }
+
+        .menu-viewport:before,
+        .menu-viewport:after {
+            content: "";
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            height: 24px;
+            z-index: 4;
+            pointer-events: none
+        }
+
+        .menu-viewport:before {
+            top: 0;
+            background: linear-gradient(var(--screen), transparent)
+        }
+
+        .menu-viewport:after {
+            bottom: 0;
+            background: linear-gradient(transparent, var(--screen))
+        }
+
+        .menu-list {
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            top: 0;
+            padding: 0;
+            transition: transform .28s cubic-bezier(.2, .8, .2, 1)
+        }
+
+        .menu-row {
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            border-radius: 9px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: transform .28s, opacity .28s, background .18s
+        }
+
+        .menu-row.selected {
+            background: var(--accent);
+            color: white;
+            font-weight: 800;
+            transform: scale(1.02)
+        }
+
+        .menu-row:not(.selected) {
+            opacity: .72
+        }
+
+        .menu-row .arrow {
+            opacity: .6
+        }
+
+        .menu-footer {
+            height: 22px;
+            flex: none;
+            text-align: center;
+            font-size: 8px;
+            color: var(--muted);
+            padding-top: 3px
+        }
+
+        .menu-empty {
+            text-align: center;
+            color: var(--muted);
+            font-size: 10px;
+            padding: 30px 12px
+        }
+
+        .detail {
+            flex-direction: column;
+            padding: 0 13px 13px
+        }
+
+        .detail-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px
+        }
+
+        .back {
+            border: 0;
+            background: var(--soft);
+            color: var(--accent);
+            border-radius: 9px;
+            padding: 5px 8px;
+            font-size: 10px;
+            cursor: pointer
+        }
+
+        .detail-head b {
+            font-size: 13px
+        }
+
+        .detail-list {
+            overflow: auto;
+            flex: 1
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px;
+            border-radius: 10px;
+            cursor: pointer
+        }
+
+        .item:hover {
+            background: var(--soft)
+        }
+
+        .item img {
+            width: 31px;
+            height: 31px;
+            border-radius: 7px;
+            object-fit: cover
+        }
+
+        .item-info {
+            min-width: 0;
+            flex: 1
+        }
+
+        .item-title {
+            font-size: 10px;
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .item-sub {
+            font-size: 8px;
+            color: var(--muted)
+        }
+
+        .item button {
+            border: 0;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 13px
+        }
+
+        .item button.liked {
+            color: var(--accent)
+        }
+
+        .form {
+            padding: 10px
+        }
+
+        .form input,
+        .form select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: var(--screen);
+            color: var(--text);
+            margin-bottom: 7px
+        }
+
+        .form button {
+            border: 0;
+            border-radius: 9px;
+            padding: 8px 12px;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 800;
+            cursor: pointer
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 9px;
+            border-bottom: 1px solid var(--line);
+            font-size: 10px
+        }
+
+        .settings-row label {
+            font-weight: 800
+        }
+
+        .settings-row select {
+            width: 130px;
+            padding: 6px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: var(--screen);
+            color: var(--text)
+        }
+
+        .add {
+            display: block;
+            text-align: center;
+            margin: 8px 0 0;
+            padding: 8px;
+            border: 1px dashed #d7cfd6;
+            border-radius: 11px;
+            color: var(--muted);
+            font-size: 9px;
+            cursor: pointer
+        }
+
+        .add b {
+            color: var(--accent)
+        }
+
+        #fileInput {
+            display: none
+        }
+
+        .wheel-area {
+            display: flex;
+            justify-content: center;
+            padding: 13px 0 2px
+        }
+
+        .wheel {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 28%, #fff, #e8e5e9 62%, #d5d1d6);
+            box-shadow: 0 10px 20px #756d7730, inset 0 2px 5px white, inset 0 -5px 8px #bcb7be;
+            touch-action: none;
+            user-select: none
+        }
+
+        .wheel:after {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border-radius: 50%;
+            border: 1px solid #d1ccd1;
+            pointer-events: none
+        }
+
+        .wheel-btn {
+            position: absolute;
+            border: 0;
+            background: transparent;
+            color: #777079;
+            font-weight: 800;
+            font-size: 9px;
+            cursor: pointer;
+            z-index: 3
+        }
+
+        .menu {
+            top: 17px;
+            left: 50%;
+            transform: translateX(-50%)
+        }
+
+        .prev {
+            left: 17px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px
+        }
+
+        .next {
+            right: 17px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px
+        }
+
+        .playWheel {
+            bottom: 17px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px
+        }
+
+        .center {
+            position: absolute;
+            width: 58px;
+            height: 58px;
+            border: 0;
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #fff, #e4e1e5);
+            box-shadow: 0 4px 10px #81798330, inset 0 1px 2px white;
+            cursor: pointer;
+            z-index: 4;
+            font-weight: 800;
+            color: #686169;
+            font-size: 9px
+        }
+
+        .center:active {
+            transform: translate(-50%, -50%) scale(.94)
+        }
+
+        .hint {
+            text-align: center;
+            font-size: 8px;
+            color: var(--muted);
+            padding-bottom: 3px
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 12px;
+            transform: translateX(-50%) translateY(10px);
+            background: #302a31;
+            color: white;
+            padding: 7px 11px;
+            border-radius: 10px;
+            font-size: 9px;
+            opacity: 0;
+            pointer-events: none;
+            transition: .2s;
+            z-index: 100
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0)
+        }
+
+        @media(max-height:620px) {
+            .screen {
+                height: 280px
+            }
+
+            .wheel {
+                width: 150px;
+                height: 150px
+            }
+        }
+    </style>
 </head>
+
 <body>
-<div class="widget">
-<div class="device">
-<div class="speaker"></div>
-<div class="screen" id="screen">
-  <div class="statusbar"><span id="screenLabel">♡ POCKET MUSIC</span><span id="clock">--:--</span></div>
+    <div class="widget">
+        <div class="device">
+            <div class="speaker"></div>
+            <div class="screen" id="screen">
+                <div class="statusbar"><span id="screenLabel">♡ POCKET MUSIC</span><span id="clock">--:--</span></div>
 
-  <div class="view now active" id="nowView">
-    <div class="album" id="dropZone">
-      <img id="albumArt" alt="">
-      <div class="placeholder" id="placeholder"><div class="note">♫</div><small>drop music here</small></div>
-      <div class="drop">drop your music ♡</div>
+                <div class="view now active" id="nowView">
+                    <div class="album" id="dropZone">
+                        <img id="albumArt" alt="">
+                        <div class="placeholder" id="placeholder">
+                            <div class="note">♫</div><small>drop music here</small>
+                        </div>
+                        <div class="drop">drop your music ♡</div>
+                    </div>
+                    <div class="song">
+                        <div class="song-name" id="songTitle">No song selected</div>
+                        <div class="song-artist" id="artist">Add some music to begin</div>
+                    </div>
+                    <input id="progress" class="progress" type="range" min="0" max="100" value="0">
+                    <div class="times"><span id="currentTime">0:00</span><span id="duration">0:00</span></div>
+                    <div class="now-actions"><button id="favoriteBtn">♡ Favorite</button><button id="shuffleBtn">⤨ Shuffle</button><button id="repeatBtn">↻ Repeat</button></div>
+                </div>
+
+                <div class="view menu-screen" id="menuView">
+                    <div class="menu-title">MENU</div>
+                    <div class="menu-viewport" id="menuViewport">
+                        <div class="menu-list" id="menuList"></div>
+                    </div>
+                    <div class="menu-footer">scroll • SELECT</div>
+                </div>
+
+                <div class="view detail" id="detailView">
+                    <div class="detail-head"><button class="back" id="backBtn">‹ Back</button><b id="detailTitle">Songs</b></div>
+                    <div class="detail-list" id="detailList"></div>
+                </div>
+
+                <div class="view detail" id="playlistView">
+                    <div class="detail-head"><button class="back" id="playlistBack">‹ Back</button><b>Playlists</b></div>
+                    <div class="detail-list" id="playlistList"></div>
+                </div>
+
+                <div class="view detail" id="settingsView">
+                    <div class="detail-head"><button class="back" id="settingsBack">‹ Back</button><b>Settings</b></div>
+                    <div class="detail-list">
+                        <div class="settings-row"><label>Theme</label><select id="themeSelect">
+                                <option value="pink">Pink</option>
+                                <option value="lavender">Lavender</option>
+                                <option value="mint">Mint</option>
+                                <option value="y2k">Y2K Blue</option>
+                                <option value="dark">Dark</option>
+                            </select></div>
+                        <div class="settings-row"><label>Playback speed</label><select id="speed">
+                                <option value=".5">0.5×</option>
+                                <option value=".75">0.75×</option>
+                                <option value="1" selected>1×</option>
+                                <option value="1.25">1.25×</option>
+                                <option value="1.5">1.5×</option>
+                                <option value="2">2×</option>
+                            </select></div>
+                        <div class="settings-row"><label>Volume</label><input id="settingsVolume" type="range" min="0" max="1" step=".01" value="1"></div>
+                        <div class="settings-row"><label>Sleep timer</label><select id="sleepTimer">
+                                <option value="0">Off</option>
+                                <option value="5">5 min</option>
+                                <option value="10">10 min</option>
+                                <option value="20">20 min</option>
+                                <option value="30">30 min</option>
+                                <option value="60">60 min</option>
+                            </select></div>
+                        <div class="settings-row"><label>Library</label><button id="clearLibrary">Clear</button></div>
+                    </div>
+                </div>
+
+                <div class="view detail" id="playlistDetailView">
+                    <div class="detail-head"><button class="back" id="playlistDetailBack">‹ Back</button><b id="playlistDetailTitle">Playlist</b></div>
+                    <div class="detail-list" id="playlistDetailList"></div>
+                    <div class="form"><input id="playlistName" placeholder="New playlist name"><button id="createPlaylist">Create playlist</button></div>
+                </div>
+            </div>
+
+            <div class="wheel-area">
+                <div class="wheel" id="wheel">
+                    <button class="wheel-btn menu" id="menuBtn">MENU</button>
+                    <button class="wheel-btn prev" id="prevBtn">◀</button>
+                    <button class="wheel-btn next" id="nextBtn">▶</button>
+                    <button class="wheel-btn playWheel" id="playWheel">▶Ⅱ</button>
+                    <button class="center" id="centerBtn">SELECT</button>
+                </div>
+            </div>
+            <div class="hint">scroll / swipe • MENU opens the screen menu</div>
+
+            <input id="fileInput" type="file" accept="audio/*,.mp3" multiple>
+        </div>
     </div>
-    <div class="song"><div class="song-name" id="songTitle">No song selected</div><div class="song-artist" id="artist">Add some music to begin</div></div>
-    <input id="progress" class="progress" type="range" min="0" max="100" value="0">
-    <div class="times"><span id="currentTime">0:00</span><span id="duration">0:00</span></div>
-    <div class="now-actions"><button id="favoriteBtn">♡ Favorite</button><button id="shuffleBtn">⤨ Shuffle</button><button id="repeatBtn">↻ Repeat</button></div>
-  </div>
 
-  <div class="view menu-screen" id="menuView">
-    <div class="menu-title">MENU</div>
-    <div class="menu-viewport" id="menuViewport">
-      <div class="menu-list" id="menuList"></div>
-    </div>
-    <div class="menu-footer">scroll • SELECT</div>
-  </div>
+    <div class="toast" id="toast"></div>
+    <audio id="audio"></audio>
 
-  <div class="view detail" id="detailView">
-    <div class="detail-head"><button class="back" id="backBtn">‹ Back</button><b id="detailTitle">Songs</b></div>
-    <div class="detail-list" id="detailList"></div>
-  </div>
+    <script>
+        const $ = id => document.getElementById(id);
+        const audio = $("audio"),
+            tracks = [],
+            state = {
+                index: -1,
+                menuIndex: 0,
+                screen: "now",
+                detail: "songs",
+                shuffle: false,
+                repeat: false,
+                sleep: null
+            };
+        let favorites = JSON.parse(localStorage.getItem("pmFavorites") || "[]");
+        let recents = JSON.parse(localStorage.getItem("pmRecents") || "[]");
+        let playlists = JSON.parse(localStorage.getItem("pmPlaylists") || "{}");
+        let db;
 
-  <div class="view detail" id="playlistView">
-    <div class="detail-head"><button class="back" id="playlistBack">‹ Back</button><b>Playlists</b></div>
-    <div class="detail-list" id="playlistList"></div>
-  </div>
+        const DB = "PocketMusicDB2",
+            STORE = "tracks";
 
-  <div class="view detail" id="settingsView">
-    <div class="detail-head"><button class="back" id="settingsBack">‹ Back</button><b>Settings</b></div>
-    <div class="detail-list">
-      <div class="settings-row"><label>Theme</label><select id="themeSelect"><option value="pink">Pink</option><option value="lavender">Lavender</option><option value="mint">Mint</option><option value="y2k">Y2K Blue</option><option value="dark">Dark</option></select></div>
-      <div class="settings-row"><label>Playback speed</label><select id="speed"><option value=".5">0.5×</option><option value=".75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></div>
-      <div class="settings-row"><label>Volume</label><input id="settingsVolume" type="range" min="0" max="1" step=".01" value="1"></div>
-      <div class="settings-row"><label>Sleep timer</label><select id="sleepTimer"><option value="0">Off</option><option value="5">5 min</option><option value="10">10 min</option><option value="20">20 min</option><option value="30">30 min</option><option value="60">60 min</option></select></div>
-      <div class="settings-row"><label>Library</label><button id="clearLibrary">Clear</button></div>
-    </div>
-  </div>
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const r = indexedDB.open(DB, 1);
+                r.onupgradeneeded = e => e.target.result.createObjectStore(STORE, {
+                    keyPath: "id"
+                });
+                r.onsuccess = e => {
+                    db = e.target.result;
+                    resolve()
+                };
+                r.onerror = () => reject(r.error)
+            })
+        }
 
-  <div class="view detail" id="playlistDetailView">
-    <div class="detail-head"><button class="back" id="playlistDetailBack">‹ Back</button><b id="playlistDetailTitle">Playlist</b></div>
-    <div class="detail-list" id="playlistDetailList"></div>
-    <div class="form"><input id="playlistName" placeholder="New playlist name"><button id="createPlaylist">Create playlist</button></div>
-  </div>
-</div>
+        function dbPut(t) {
+            return new Promise(res => {
+                const x = db.transaction(STORE, "readwrite");
+                x.objectStore(STORE).put({
+                    id: t.id,
+                    file: t.file,
+                    title: t.title,
+                    artist: t.artist,
+                    album: t.album,
+                    art: t.art
+                });
+                x.oncomplete = res;
+                x.onerror = res
+            })
+        }
 
-<div class="wheel-area">
-<div class="wheel" id="wheel">
-<button class="wheel-btn menu" id="menuBtn">MENU</button>
-<button class="wheel-btn prev" id="prevBtn">◀</button>
-<button class="wheel-btn next" id="nextBtn">▶</button>
-<button class="wheel-btn playWheel" id="playWheel">▶Ⅱ</button>
-<button class="center" id="centerBtn">SELECT</button>
-</div>
-</div>
-<div class="hint">scroll / swipe • MENU opens the screen menu</div>
+        function dbAll() {
+            return new Promise(res => {
+                const r = db.transaction(STORE).objectStore(STORE).getAll();
+                r.onsuccess = () => res(r.result || []);
+                r.onerror = () => res([])
+            })
+        }
 
-<input id="fileInput" type="file" accept="audio/*,.mp3" multiple>
-</div>
-</div>
+        function dbDelete(id) {
+            db.transaction(STORE, "readwrite").objectStore(STORE).delete(id)
+        }
 
-<div class="toast" id="toast"></div>
-<audio id="audio"></audio>
+        function dbClear() {
+            db.transaction(STORE, "readwrite").objectStore(STORE).clear()
+        }
 
-<script>
-const $=id=>document.getElementById(id);
-const audio=$("audio"), tracks=[], state={index:-1,menuIndex:0,screen:"now",detail:"songs",shuffle:false,repeat:false,sleep:null};
-let favorites=JSON.parse(localStorage.getItem("pmFavorites")||"[]");
-let recents=JSON.parse(localStorage.getItem("pmRecents")||"[]");
-let playlists=JSON.parse(localStorage.getItem("pmPlaylists")||"{}");
-let db;
+        function art() {
+            return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500"><defs><linearGradient id="g"><stop stop-color="#ffd5e7"/><stop offset="1" stop-color="#ded9ff"/></linearGradient></defs><rect width="500" height="500" fill="url(#g)"/><text x="250" y="300" text-anchor="middle" font-size="120" fill="white">♫</text></svg>`)
+        }
 
-const DB="PocketMusicDB2", STORE="tracks";
-function openDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=e=>e.target.result.createObjectStore(STORE,{keyPath:"id"});r.onsuccess=e=>{db=e.target.result;resolve()};r.onerror=()=>reject(r.error)})}
-function dbPut(t){return new Promise(res=>{const x=db.transaction(STORE,"readwrite");x.objectStore(STORE).put({id:t.id,file:t.file,title:t.title,artist:t.artist,album:t.album,art:t.art});x.oncomplete=res;x.onerror=res})}
-function dbAll(){return new Promise(res=>{const r=db.transaction(STORE).objectStore(STORE).getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>res([])})}
-function dbDelete(id){db.transaction(STORE,"readwrite").objectStore(STORE).delete(id)}
-function dbClear(){db.transaction(STORE,"readwrite").objectStore(STORE).clear()}
+        function metadata(file) {
+            return new Promise(resolve => {
+                jsmediatags.read(file, {
+                    onSuccess: r => resolve(make(r.tags, file)),
+                    onError: () => resolve(make({}, file))
+                })
+            })
+        }
 
-function art(){return "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500"><defs><linearGradient id="g"><stop stop-color="#ffd5e7"/><stop offset="1" stop-color="#ded9ff"/></linearGradient></defs><rect width="500" height="500" fill="url(#g)"/><text x="250" y="300" text-anchor="middle" font-size="120" fill="white">♫</text></svg>`)}
-function metadata(file){return new Promise(resolve=>{jsmediatags.read(file,{onSuccess:r=>resolve(make(r.tags,file)),onError:()=>resolve(make({},file))})})}
-function make(t,file){let cover=null;if(t.picture){let b="";for(const n of t.picture.data)b+=String.fromCharCode(n);cover=`data:${t.picture.format};base64,${btoa(b)}`}return{id:crypto.randomUUID(),file,title:t.title||file.name.replace(/\.[^/.]+$/,""),artist:t.artist||"Unknown artist",album:t.album||"Unknown album",art:cover||art()}}
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-function time(n){if(!Number.isFinite(n))return"0:00";return Math.floor(n/60)+":"+String(Math.floor(n%60)).padStart(2,"0")}
-function toast(t){$("toast").textContent=t;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1400)}
-function clock(){$("clock").textContent=new Date().toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}
-setInterval(clock,1000);clock();
+        function make(t, file) {
+            let cover = null;
+            if (t.picture) {
+                let b = "";
+                for (const n of t.picture.data) b += String.fromCharCode(n);
+                cover = `data:${t.picture.format};base64,${btoa(b)}`
+            }
+            return {
+                id: crypto.randomUUID(),
+                file,
+                title: t.title || file.name.replace(/\.[^/.]+$/, ""),
+                artist: t.artist || "Unknown artist",
+                album: t.album || "Unknown album",
+                art: cover || art()
+            }
+        }
 
-async function addFiles(files){
- for(const f of [...files].filter(x=>x.type.startsWith("audio/")||x.name.toLowerCase().endsWith(".mp3"))){
-  const t=await metadata(f);t.url=URL.createObjectURL(f);tracks.push(t);await dbPut(t)
- }
- renderMenu(); if(state.index<0&&tracks.length)load(0);toast("Music added ♡")
-}
-function load(i){
- if(!tracks.length)return;
- if(i<0)i=tracks.length-1;if(i>=tracks.length)i=0;
- state.index=i;const t=tracks[i];audio.src=t.url;
- $("albumArt").src=t.art;$("albumArt").style.display="block";$("placeholder").style.display="none";
- $("songTitle").textContent=t.title;$("artist").textContent=t.artist+(t.album?` • ${t.album}`:"");
- $("progress").value=0;$("duration").textContent="0:00";$("currentTime").textContent="0:00";
- $("favoriteBtn").textContent=isFav(t)?"♥ Favorite":"♡ Favorite";$("favoriteBtn").classList.toggle("active",isFav(t));
- $("screenLabel").textContent="♡ NOW PLAYING";
-}
-function isFav(t){return favorites.includes(t.id)}
-function toggleFav(){if(state.index<0)return;const id=tracks[state.index].id;favorites=isFav(tracks[state.index])?favorites.filter(x=>x!==id):[...favorites,id];localStorage.setItem("pmFavorites",JSON.stringify(favorites));$("favoriteBtn").textContent=isFav(tracks[state.index])?"♥ Favorite":"♡ Favorite";$("favoriteBtn").classList.toggle("active",isFav(tracks[state.index]));renderDetail()}
-function play(){if(state.index<0&&tracks.length)load(0);if(audio.paused)audio.play();else audio.pause()}
-function next(){if(!tracks.length)return;let n=state.shuffle?Math.floor(Math.random()*tracks.length):state.index+1;if(state.shuffle&&tracks.length>1&&n===state.index)n=(n+1)%tracks.length;load(n);audio.play()}
-function prev(){if(audio.currentTime>3){audio.currentTime=0;return}load(state.index-1);audio.play()}
-audio.onplay=()=>{if(state.index>=0){const id=tracks[state.index].id;recents=[id,...recents.filter(x=>x!==id)].slice(0,30);localStorage.setItem("pmRecents",JSON.stringify(recents))}$("playWheel").textContent="Ⅱ";$("screenLabel").textContent="♡ PLAYING"}
-audio.onpause=()=>{$("playWheel").textContent="▶Ⅱ";if(!audio.ended)$("screenLabel").textContent="♡ PAUSED"}
-audio.onended=()=>{if(state.repeat){audio.currentTime=0;audio.play()}else next()}
-audio.ontimeupdate=()=>{if(audio.duration){$("progress").value=audio.currentTime/audio.duration*100;$("currentTime").textContent=time(audio.currentTime)}}
-audio.onloadedmetadata=()=>$("duration").textContent=time(audio.duration)
-$("progress").oninput=()=>{if(audio.duration)audio.currentTime=$("progress").value/100*audio.duration}
+        function esc(s) {
+            return String(s).replace(/[&<>"']/g, c => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            } [c]))
+        }
 
-function show(view){
- document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
- $(view).classList.add("active");
-}
-function menuItems(){return[
- ["Songs","songs"],["Albums","albums"],["Favorites","favorites"],["Recently Played","recent"],["Playlists","playlists"],["Settings","settings"],["Add Music","add"]
-]}
-function renderMenu(){
- const list=$("menuList");
- list.innerHTML="";
- menuItems().forEach((it,i)=>{
-  const row=document.createElement("div");
-  row.className="menu-row"+(i===state.menuIndex?" selected":"");
-  row.innerHTML=`<span>${i===state.menuIndex?"▶ ":""}${it[0]}</span><span class="arrow">›</span>`;
-  row.onclick=()=>{state.menuIndex=i;renderMenu();setTimeout(()=>selectMenu(i),160)};
-  list.appendChild(row);
- });
- requestAnimationFrame(updateMenuScroll);
-}
-function updateMenuScroll(){
- const rows=[...document.querySelectorAll("#menuList .menu-row")];
- if(!rows.length)return;
- const rowH=36;
- const viewport=$("menuViewport");
- const center=viewport.clientHeight/2-rowH/2;
- let offset=center-state.menuIndex*rowH;
- const max=0;
- const min=Math.min(0,viewport.clientHeight-(rows.length*rowH));
- offset=Math.max(min,Math.min(max,offset));
- $("menuList").style.transform=`translateY(${offset}px)`;
-}
-function openMenu(){state.screen="menu";state.menuIndex=0;show("menuView");$("screenLabel").textContent="MENU";renderMenu()}
-function backToMenu(){openMenu()}
-function selectMenu(i){
- const type=menuItems()[i][1];
- if(type==="add"){$("fileInput").click();return}
- if(type==="settings"){show("settingsView");$("screenLabel").textContent="SETTINGS";return}
- if(type==="playlists"){renderPlaylists();show("playlistView");$("screenLabel").textContent="PLAYLISTS";return}
- state.detail=type;renderDetail();show("detailView");$("screenLabel").textContent=menuItems()[i][0].toUpperCase()
-}
-function sourceList(type){
- if(type==="songs")return tracks;
- if(type==="favorites")return tracks.filter(isFav);
- if(type==="recent")return recents.map(id=>tracks.find(t=>t.id===id)).filter(Boolean);
- if(type==="albums"){const seen=new Set();return tracks.filter(t=>{if(seen.has(t.album))return false;seen.add(t.album);return true})}
- return tracks
-}
-function renderDetail(){
- const box=$("detailList");box.innerHTML="";let list=sourceList(state.detail);
- $("detailTitle").textContent=state.detail==="songs"?"Songs":state.detail==="favorites"?"Favorites":state.detail==="recent"?"Recently Played":"Albums";
- if(!list.length){box.innerHTML='<div class="menu-empty">Nothing here yet ♡</div>';return}
- list.forEach(t=>{
-  const row=document.createElement("div");row.className="item";
-  const sub=state.detail==="albums"?`${tracks.filter(x=>x.album===t.album).length} songs • ${t.artist}`:t.artist;
-  row.innerHTML=`<img src="${t.art}"><div class="item-info"><div class="item-title">${esc(t.title||t.album)}</div><div class="item-sub">${esc(sub)}</div></div><button class="${isFav(t)?"liked":""}">${isFav(t)?"♥":"♡"}</button>`;
-  row.onclick=e=>{if(e.target.tagName==="BUTTON"){const idx=tracks.indexOf(t);state.index=idx;toggleFav();return}load(tracks.indexOf(t));show("now");$("screenLabel").textContent="♡ NOW PLAYING";audio.play()};
-  box.appendChild(row)
- })
-}
-function renderPlaylists(){
- const box=$("playlistList");box.innerHTML="";
- const names=Object.keys(playlists);
- if(!names.length){box.innerHTML='<div class="menu-empty">No playlists yet.<br>Create one with the button below.</div>'}
- names.forEach(name=>{const row=document.createElement("div");row.className="menu-row";row.innerHTML=`<span>♡ ${esc(name)}</span><span>${playlists[name].length} ›</span>`;row.onclick=()=>openPlaylist(name);box.appendChild(row)});
- const create=document.createElement("div");create.className="form";create.innerHTML='<input id="quickPlaylistName" placeholder="New playlist name"><button id="quickCreate">Create playlist</button>';box.appendChild(create);
- $("quickCreate").onclick=()=>{const n=$("quickPlaylistName").value.trim();if(!n)return;if(!playlists[n])playlists[n]=[];savePlaylists();renderPlaylists();toast("Playlist created ♡")}
-}
-function savePlaylists(){localStorage.setItem("pmPlaylists",JSON.stringify(playlists))}
-function openPlaylist(name){
- $("playlistDetailTitle").textContent=name;$("playlistDetailView").dataset.name=name;const box=$("playlistDetailList");box.innerHTML="";
- const ids=playlists[name]||[];
- if(!ids.length)box.innerHTML='<div class="menu-empty">This playlist is empty ♡</div>';
- ids.map(id=>tracks.find(t=>t.id===id)).filter(Boolean).forEach(t=>{const row=document.createElement("div");row.className="item";row.innerHTML=`<img src="${t.art}"><div class="item-info"><div class="item-title">${esc(t.title)}</div><div class="item-sub">${esc(t.artist)}</div></div><button>×</button>`;row.onclick=e=>{if(e.target.tagName==="BUTTON"){playlists[name]=playlists[name].filter(x=>x!==t.id);savePlaylists();openPlaylist(name);return}load(tracks.indexOf(t));show("now");audio.play()};box.appendChild(row)});
- const add=document.createElement("div");add.className="form";add.innerHTML=`<select id="addToPlaylist"><option value="">＋ Add a song...</option>${tracks.filter(t=>!ids.includes(t.id)).map(t=>`<option value="${t.id}">${esc(t.title)}</option>`).join("")}</select>`;box.appendChild(add);
- $("addToPlaylist").onchange=e=>{if(e.target.value){playlists[name].push(e.target.value);savePlaylists();openPlaylist(name);toast("Added to playlist ♡")}}
- show("playlistDetailView")
-}
+        function time(n) {
+            if (!Number.isFinite(n)) return "0:00";
+            return Math.floor(n / 60) + ":" + String(Math.floor(n % 60)).padStart(2, "0")
+        }
 
-$("menuBtn").onclick=()=>state.screen==="now"?openMenu():backToMenu();
-$("centerBtn").onclick=()=>state.screen==="menu"?selectMenu(state.menuIndex):play();
-$("playWheel").onclick=play;$("prevBtn").onclick=prev;$("nextBtn").onclick=next;
-$("favoriteBtn").onclick=toggleFav;
-$("shuffleBtn").onclick=()=>{state.shuffle=!state.shuffle;$("shuffleBtn").classList.toggle("active",state.shuffle)}
-$("repeatBtn").onclick=()=>{state.repeat=!state.repeat;$("repeatBtn").classList.toggle("active",state.repeat)}
-$("backBtn").onclick=backToMenu;$("playlistBack").onclick=backToMenu;$("settingsBack").onclick=backToMenu;$("playlistDetailBack").onclick=()=>{renderPlaylists();show("playlistView")}
+        function toast(t) {
+            $("toast").textContent = t;
+            $("toast").classList.add("show");
+            setTimeout(() => $("toast").classList.remove("show"), 1400)
+        }
 
-$("themeSelect").onchange=e=>{document.body.className=e.target.value==="pink"?"":e.target.value;localStorage.setItem("pmTheme",e.target.value)}
-$("speed").onchange=e=>audio.playbackRate=Number(e.target.value)
-$("settingsVolume").oninput=e=>audio.volume=Number(e.target.value)
-$("sleepTimer").onchange=e=>{clearTimeout(state.sleep);const m=Number(e.target.value);if(m)state.sleep=setTimeout(()=>audio.pause(),m*60000)}
-$("clearLibrary").onclick=()=>{if(!confirm("Clear your saved music library?"))return;tracks.splice(0);favorites=[];recents=[];playlists={};localStorage.removeItem("pmFavorites");localStorage.removeItem("pmRecents");localStorage.removeItem("pmPlaylists");dbClear();audio.pause();audio.src="";state.index=-1;$("songTitle").textContent="No song selected";$("artist").textContent="Add some music to begin";$("albumArt").style.display="none";$("placeholder").style.display="flex";toast("Library cleared")}
+        function clock() {
+            $("clock").textContent = new Date().toLocaleTimeString([], {
+                hour: "numeric",
+                minute: "2-digit"
+            })
+        }
+        setInterval(clock, 1000);
+        clock();
 
-let wheelDelta=0,startY=null;
-$("wheel").addEventListener("wheel",e=>{e.preventDefault();if(state.screen!=="menu")return;wheelDelta+=e.deltaY;if(Math.abs(wheelDelta)<20)return;state.menuIndex=(state.menuIndex+(wheelDelta>0?1:-1)+menuItems().length)%menuItems().length;wheelDelta=0;renderMenu()},{passive:false});
-$("wheel").addEventListener("pointerdown",e=>startY=e.clientY);
-$("wheel").addEventListener("pointerup",e=>{if(startY==null)return;const d=e.clientY-startY;if(Math.abs(d)>20&&state.screen==="menu"){state.menuIndex=(state.menuIndex+(d>0?1:-1)+menuItems().length)%menuItems().length;renderMenu()}startY=null});
-window.addEventListener("resize",()=>{if(state.screen==="menu")updateMenuScroll()});
+        async function addFiles(files) {
+            for (const f of [...files].filter(x => x.type.startsWith("audio/") || x.name.toLowerCase().endsWith(".mp3"))) {
+                const t = await metadata(f);
+                t.url = URL.createObjectURL(f);
+                tracks.push(t);
+                await dbPut(t)
+            }
+            renderMenu();
+            if (state.index < 0 && tracks.length) load(0);
+            toast("Music added ♡")
+        }
 
-$("dropZone").addEventListener("dragover",e=>{e.preventDefault();$("dropZone").classList.add("dragging")});
-$("dropZone").addEventListener("dragleave",()=>$("dropZone").classList.remove("dragging"));
-$("dropZone").addEventListener("drop",e=>{e.preventDefault();$("dropZone").classList.remove("dragging");addFiles(e.dataTransfer.files)});
-$("fileInput").onchange=e=>{addFiles(e.target.files);e.target.value=""};
-document.onkeydown=e=>{if(e.target.matches("input,select"))return;if(e.code==="Space"){e.preventDefault();play()}if(e.code==="ArrowRight")next();if(e.code==="ArrowLeft")prev();if(e.code==="Escape"&&state.screen!=="now")backToMenu()}
+        function load(i) {
+            if (!tracks.length) return;
+            if (i < 0) i = tracks.length - 1;
+            if (i >= tracks.length) i = 0;
+            state.index = i;
+            const t = tracks[i];
+            audio.src = t.url;
+            $("albumArt").src = t.art;
+            $("albumArt").style.display = "block";
+            $("placeholder").style.display = "none";
+            $("songTitle").textContent = t.title;
+            $("artist").textContent = t.artist + (t.album ? ` • ${t.album}` : "");
+            $("progress").value = 0;
+            $("duration").textContent = "0:00";
+            $("currentTime").textContent = "0:00";
+            $("favoriteBtn").textContent = isFav(t) ? "♥ Favorite" : "♡ Favorite";
+            $("favoriteBtn").classList.toggle("active", isFav(t));
+            $("screenLabel").textContent = "♡ NOW PLAYING";
+        }
 
-(async()=>{const theme=localStorage.getItem("pmTheme")||"pink";$("themeSelect").value=theme;if(theme!=="pink")document.body.className=theme;await openDB();const saved=await dbAll();saved.forEach(t=>{t.url=URL.createObjectURL(t.file);tracks.push(t)});if(tracks.length)load(0);renderMenu()})();
-</script>
+        function isFav(t) {
+            return favorites.includes(t.id)
+        }
+
+        function toggleFav() {
+            if (state.index < 0) return;
+            const id = tracks[state.index].id;
+            favorites = isFav(tracks[state.index]) ? favorites.filter(x => x !== id) : [...favorites, id];
+            localStorage.setItem("pmFavorites", JSON.stringify(favorites));
+            $("favoriteBtn").textContent = isFav(tracks[state.index]) ? "♥ Favorite" : "♡ Favorite";
+            $("favoriteBtn").classList.toggle("active", isFav(tracks[state.index]));
+            renderDetail()
+        }
+
+        function play() {
+            if (state.index < 0 && tracks.length) load(0);
+            if (audio.paused) audio.play();
+            else audio.pause()
+        }
+
+        function next() {
+            if (!tracks.length) return;
+            let n = state.shuffle ? Math.floor(Math.random() * tracks.length) : state.index + 1;
+            if (state.shuffle && tracks.length > 1 && n === state.index) n = (n + 1) % tracks.length;
+            load(n);
+            audio.play()
+        }
+
+        function prev() {
+            if (audio.currentTime > 3) {
+                audio.currentTime = 0;
+                return
+            }
+            load(state.index - 1);
+            audio.play()
+        }
+        audio.onplay = () => {
+            if (state.index >= 0) {
+                const id = tracks[state.index].id;
+                recents = [id, ...recents.filter(x => x !== id)].slice(0, 30);
+                localStorage.setItem("pmRecents", JSON.stringify(recents))
+            }
+            $("playWheel").textContent = "Ⅱ";
+            $("screenLabel").textContent = "♡ PLAYING"
+        }
+        audio.onpause = () => {
+            $("playWheel").textContent = "▶Ⅱ";
+            if (!audio.ended) $("screenLabel").textContent = "♡ PAUSED"
+        }
+        audio.onended = () => {
+            if (state.repeat) {
+                audio.currentTime = 0;
+                audio.play()
+            } else next()
+        }
+        audio.ontimeupdate = () => {
+            if (audio.duration) {
+                $("progress").value = audio.currentTime / audio.duration * 100;
+                $("currentTime").textContent = time(audio.currentTime)
+            }
+        }
+        audio.onloadedmetadata = () => $("duration").textContent = time(audio.duration)
+        $("progress").oninput = () => {
+            if (audio.duration) audio.currentTime = $("progress").value / 100 * audio.duration
+        }
+
+        function show(view) {
+            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+            $(view).classList.add("active");
+        }
+
+        function menuItems() {
+            return [
+                ["Songs", "songs"],
+                ["Albums", "albums"],
+                ["Favorites", "favorites"],
+                ["Recently Played", "recent"],
+                ["Playlists", "playlists"],
+                ["Settings", "settings"],
+                ["Add Music", "add"]
+            ]
+        }
+
+        function renderMenu() {
+            const list = $("menuList");
+            list.innerHTML = "";
+            menuItems().forEach((it, i) => {
+                const row = document.createElement("div");
+                row.className = "menu-row" + (i === state.menuIndex ? " selected" : "");
+                row.innerHTML = `<span>${i===state.menuIndex?"▶ ":""}${it[0]}</span><span class="arrow">›</span>`;
+                row.onclick = () => {
+                    state.menuIndex = i;
+                    renderMenu();
+                    setTimeout(() => selectMenu(i), 160)
+                };
+                list.appendChild(row);
+            });
+            requestAnimationFrame(updateMenuScroll);
+        }
+
+        function updateMenuScroll() {
+            const rows = [...document.querySelectorAll("#menuList .menu-row")];
+            if (!rows.length) return;
+            const rowH = 36;
+            const viewport = $("menuViewport");
+            const center = viewport.clientHeight / 2 - rowH / 2;
+            let offset = center - state.menuIndex * rowH;
+            const max = 0;
+            const min = Math.min(0, viewport.clientHeight - (rows.length * rowH));
+            offset = Math.max(min, Math.min(max, offset));
+            $("menuList").style.transform = `translateY(${offset}px)`;
+        }
+
+        function openMenu() {
+            state.screen = "menu";
+            state.menuIndex = 0;
+            show("menuView");
+            $("screenLabel").textContent = "MENU";
+            renderMenu()
+        }
+
+        function backToMenu() {
+            openMenu()
+        }
+
+        function selectMenu(i) {
+            const type = menuItems()[i][1];
+            if (type === "add") {
+                $("fileInput").click();
+                return
+            }
+            if (type === "settings") {
+                show("settingsView");
+                $("screenLabel").textContent = "SETTINGS";
+                return
+            }
+            if (type === "playlists") {
+                renderPlaylists();
+                show("playlistView");
+                $("screenLabel").textContent = "PLAYLISTS";
+                return
+            }
+            state.detail = type;
+            renderDetail();
+            show("detailView");
+            $("screenLabel").textContent = menuItems()[i][0].toUpperCase()
+        }
+
+        function sourceList(type) {
+            if (type === "songs") return tracks;
+            if (type === "favorites") return tracks.filter(isFav);
+            if (type === "recent") return recents.map(id => tracks.find(t => t.id === id)).filter(Boolean);
+            if (type === "albums") {
+                const seen = new Set();
+                return tracks.filter(t => {
+                    if (seen.has(t.album)) return false;
+                    seen.add(t.album);
+                    return true
+                })
+            }
+            return tracks
+        }
+
+        function renderDetail() {
+            const box = $("detailList");
+            box.innerHTML = "";
+            let list = sourceList(state.detail);
+            $("detailTitle").textContent = state.detail === "songs" ? "Songs" : state.detail === "favorites" ? "Favorites" : state.detail === "recent" ? "Recently Played" : "Albums";
+            if (!list.length) {
+                box.innerHTML = '<div class="menu-empty">Nothing here yet ♡</div>';
+                return
+            }
+            list.forEach(t => {
+                const row = document.createElement("div");
+                row.className = "item";
+                const sub = state.detail === "albums" ? `${tracks.filter(x=>x.album===t.album).length} songs • ${t.artist}` : t.artist;
+                row.innerHTML = `<img src="${t.art}"><div class="item-info"><div class="item-title">${esc(t.title||t.album)}</div><div class="item-sub">${esc(sub)}</div></div><button class="${isFav(t)?"liked":""}">${isFav(t)?"♥":"♡"}</button>`;
+                row.onclick = e => {
+                    if (e.target.tagName === "BUTTON") {
+                        const idx = tracks.indexOf(t);
+                        state.index = idx;
+                        toggleFav();
+                        return
+                    }
+                    load(tracks.indexOf(t));
+                    show("now");
+                    $("screenLabel").textContent = "♡ NOW PLAYING";
+                    audio.play()
+                };
+                box.appendChild(row)
+            })
+        }
+
+        function renderPlaylists() {
+            const box = $("playlistList");
+            box.innerHTML = "";
+            const names = Object.keys(playlists);
+            if (!names.length) {
+                box.innerHTML = '<div class="menu-empty">No playlists yet.<br>Create one with the button below.</div>'
+            }
+            names.forEach(name => {
+                const row = document.createElement("div");
+                row.className = "menu-row";
+                row.innerHTML = `<span>♡ ${esc(name)}</span><span>${playlists[name].length} ›</span>`;
+                row.onclick = () => openPlaylist(name);
+                box.appendChild(row)
+            });
+            const create = document.createElement("div");
+            create.className = "form";
+            create.innerHTML = '<input id="quickPlaylistName" placeholder="New playlist name"><button id="quickCreate">Create playlist</button>';
+            box.appendChild(create);
+            $("quickCreate").onclick = () => {
+                const n = $("quickPlaylistName").value.trim();
+                if (!n) return;
+                if (!playlists[n]) playlists[n] = [];
+                savePlaylists();
+                renderPlaylists();
+                toast("Playlist created ♡")
+            }
+        }
+
+        function savePlaylists() {
+            localStorage.setItem("pmPlaylists", JSON.stringify(playlists))
+        }
+
+        function openPlaylist(name) {
+            $("playlistDetailTitle").textContent = name;
+            $("playlistDetailView").dataset.name = name;
+            const box = $("playlistDetailList");
+            box.innerHTML = "";
+            const ids = playlists[name] || [];
+            if (!ids.length) box.innerHTML = '<div class="menu-empty">This playlist is empty ♡</div>';
+            ids.map(id => tracks.find(t => t.id === id)).filter(Boolean).forEach(t => {
+                const row = document.createElement("div");
+                row.className = "item";
+                row.innerHTML = `<img src="${t.art}"><div class="item-info"><div class="item-title">${esc(t.title)}</div><div class="item-sub">${esc(t.artist)}</div></div><button>×</button>`;
+                row.onclick = e => {
+                    if (e.target.tagName === "BUTTON") {
+                        playlists[name] = playlists[name].filter(x => x !== t.id);
+                        savePlaylists();
+                        openPlaylist(name);
+                        return
+                    }
+                    load(tracks.indexOf(t));
+                    show("now");
+                    audio.play()
+                };
+                box.appendChild(row)
+            });
+            const add = document.createElement("div");
+            add.className = "form";
+            add.innerHTML = `<select id="addToPlaylist"><option value="">＋ Add a song...</option>${tracks.filter(t=>!ids.includes(t.id)).map(t=>`<option value="${t.id}">${esc(t.title)}</option>`).join("")}</select>`;
+            box.appendChild(add);
+            $("addToPlaylist").onchange = e => {
+                if (e.target.value) {
+                    playlists[name].push(e.target.value);
+                    savePlaylists();
+                    openPlaylist(name);
+                    toast("Added to playlist ♡")
+                }
+            }
+            show("playlistDetailView")
+        }
+
+        $("menuBtn").onclick = () => state.screen === "now" ? openMenu() : backToMenu();
+        $("centerBtn").onclick = () => state.screen === "menu" ? selectMenu(state.menuIndex) : play();
+        $("playWheel").onclick = play;
+        $("prevBtn").onclick = () => {
+            if (state.screen === "menu") {
+                state.menuIndex = (state.menuIndex - 1 + menuItems().length) % menuItems().length;
+                renderMenu()
+            } else prev()
+        };
+        $("nextBtn").onclick = () => {
+            if (state.screen === "menu") {
+                state.menuIndex = (state.menuIndex + 1) % menuItems().length;
+                renderMenu()
+            } else next()
+        };
+        $("favoriteBtn").onclick = toggleFav;
+        $("shuffleBtn").onclick = () => {
+            state.shuffle = !state.shuffle;
+            $("shuffleBtn").classList.toggle("active", state.shuffle)
+        }
+        $("repeatBtn").onclick = () => {
+            state.repeat = !state.repeat;
+            $("repeatBtn").classList.toggle("active", state.repeat)
+        }
+        $("backBtn").onclick = backToMenu;
+        $("playlistBack").onclick = backToMenu;
+        $("settingsBack").onclick = backToMenu;
+        $("playlistDetailBack").onclick = () => {
+            renderPlaylists();
+            show("playlistView")
+        }
+
+        $("themeSelect").onchange = e => {
+            document.body.className = e.target.value === "pink" ? "" : e.target.value;
+            localStorage.setItem("pmTheme", e.target.value)
+        }
+        $("speed").onchange = e => audio.playbackRate = Number(e.target.value)
+        $("settingsVolume").oninput = e => audio.volume = Number(e.target.value)
+        $("sleepTimer").onchange = e => {
+            clearTimeout(state.sleep);
+            const m = Number(e.target.value);
+            if (m) state.sleep = setTimeout(() => audio.pause(), m * 60000)
+        }
+        $("clearLibrary").onclick = () => {
+            if (!confirm("Clear your saved music library?")) return;
+            tracks.splice(0);
+            favorites = [];
+            recents = [];
+            playlists = {};
+            localStorage.removeItem("pmFavorites");
+            localStorage.removeItem("pmRecents");
+            localStorage.removeItem("pmPlaylists");
+            dbClear();
+            audio.pause();
+            audio.src = "";
+            state.index = -1;
+            $("songTitle").textContent = "No song selected";
+            $("artist").textContent = "Add some music to begin";
+            $("albumArt").style.display = "none";
+            $("placeholder").style.display = "flex";
+            toast("Library cleared")
+        }
+
+        let wheelDelta = 0,
+            startY = null;
+        $("wheel").addEventListener("wheel", e => {
+            e.preventDefault();
+            if (state.screen !== "menu") return;
+            wheelDelta += e.deltaY;
+            if (Math.abs(wheelDelta) < 20) return;
+            state.menuIndex = (state.menuIndex + (wheelDelta > 0 ? 1 : -1) + menuItems().length) % menuItems().length;
+            wheelDelta = 0;
+            renderMenu()
+        }, {
+            passive: false
+        });
+        $("wheel").addEventListener("pointerdown", e => startY = e.clientY);
+        $("wheel").addEventListener("pointerup", e => {
+            if (startY == null) return;
+            const d = e.clientY - startY;
+            if (Math.abs(d) > 20 && state.screen === "menu") {
+                state.menuIndex = (state.menuIndex + (d > 0 ? 1 : -1) + menuItems().length) % menuItems().length;
+                renderMenu()
+            }
+            startY = null
+        });
+        window.addEventListener("resize", () => {
+            if (state.screen === "menu") updateMenuScroll()
+        });
+
+        $("dropZone").addEventListener("dragover", e => {
+            e.preventDefault();
+            $("dropZone").classList.add("dragging")
+        });
+        $("dropZone").addEventListener("dragleave", () => $("dropZone").classList.remove("dragging"));
+        $("dropZone").addEventListener("drop", e => {
+            e.preventDefault();
+            $("dropZone").classList.remove("dragging");
+            addFiles(e.dataTransfer.files)
+        });
+        $("fileInput").onchange = e => {
+            addFiles(e.target.files);
+            e.target.value = ""
+        };
+        document.onkeydown = e => {
+            if (e.target.matches("input,select")) return;
+            if (e.code === "Space") {
+                e.preventDefault();
+                play()
+            }
+            if (e.code === "ArrowRight") {
+                if (state.screen === "menu") {
+                    state.menuIndex = (state.menuIndex + 1) % menuItems().length;
+                    renderMenu()
+                } else next()
+            }
+            if (e.code === "ArrowLeft") {
+                if (state.screen === "menu") {
+                    state.menuIndex = (state.menuIndex - 1 + menuItems().length) % menuItems().length;
+                    renderMenu()
+                } else prev()
+            }
+            if (e.code === "Escape" && state.screen !== "now") backToMenu()
+        }
+
+        (async () => {
+            const theme = localStorage.getItem("pmTheme") || "pink";
+            $("themeSelect").value = theme;
+            if (theme !== "pink") document.body.className = theme;
+            await openDB();
+            const saved = await dbAll();
+            saved.forEach(t => {
+                t.url = URL.createObjectURL(t.file);
+                tracks.push(t)
+            });
+            if (tracks.length) load(0);
+            renderMenu()
+        })();
+    </script>
 </body>
+
 </html>
